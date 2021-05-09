@@ -3,15 +3,15 @@ body {
   font-family: "Lato", sans-serif;
 }
 
-#table {
-  margin: 20px 0;
+#table > div {
+  margin: 25px 0;
 }
 #table .row span {
   width: 70px;
   padding: 5px;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
 }
 #table .row span:first-child {
   border-right: 1px solid black;
@@ -24,6 +24,7 @@ body {
 }
 #table .row.header {
   border-bottom: 1px dashed black;
+  background: #c7c1bf;
 }
 #table .row.header span {
   font-size: 14px;
@@ -33,6 +34,9 @@ body {
 }
 #table .row:last-child {
   border-top: 1px solid black;
+}
+#table .row:last-child span {
+  font-size: 16px;
 }
 
 /*# sourceMappingURL=style.css.map */

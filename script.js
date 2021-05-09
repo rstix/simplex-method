@@ -1,5 +1,5 @@
 
-// let simplexTable = [[3,1,1,1,0,0,10,0],[4,3,1,0,1,0,15,0],[5,-1,1,0,0,1,13],[0,-3,1,0,0,0,0]]
+// let simplexTable = [[3,1,1,1,0,0,10,0],[4,3,1,0,1,0,15,0],[5,-1,1,0,0,1,13,0],[0,-3,1,0,0,0,0]]
 let simplexTable = [[5,8,-2,1,-1,1,0,0,50,0],[6,3,5,0,2,0,1,0,150,0],[7,1,-1,2,-4,0,0,1,130,0],[0,2,4,-4,7,0,0,0,0]]
 
 
@@ -102,7 +102,7 @@ renderInHTMLTable(simplexTable)
 
 const makePivotOne = () => {
   simplexTable[pivot.row].forEach((el,index) => {
-    if(index >0){
+    if(index >0 && index < tableLength-1){
       simplexTable[pivot.row][index] = el / pivot.value
     }
   })
@@ -113,7 +113,7 @@ const performGauss = () => {
     if(ri != pivot.row && r[pivot.column] != 0 ){
       const q = -r[pivot.column]
       r.forEach((el,eli) => {
-        if(eli > 0){
+        if(eli > 0 && eli < tableLength-1){
           simplexTable[ri][eli] = simplexTable[ri][eli] + q*simplexTable[pivot.row][eli]
         }
       })
