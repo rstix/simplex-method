@@ -1,9 +1,12 @@
 
 // let simplexTable = [[3,1,1,1,0,0,10,0],[4,3,1,0,1,0,15,0],[5,-1,1,0,0,1,13],[0,-3,1,0,0,0,0]]
-
-
-
 let simplexTable = [[5,8,-2,1,-1,1,0,0,50,0],[6,3,5,0,2,0,1,0,150,0],[7,1,-1,2,-4,0,0,1,130,0],[0,2,4,-4,7,0,0,0,0]]
+
+
+
+const table = document.querySelector('#table')
+
+const nextStep = document.querySelector('.next-step')
 
 const tableLength = simplexTable[0].length
 
@@ -15,7 +18,6 @@ let pivot = {
 
 // console.log(simplexTable[1][0])
 
-
 const indexOfNegative = (arr) => {
   return arr.slice(0, -1).findIndex(e => e < 0)
 }
@@ -23,25 +25,18 @@ const indexOfNegative = (arr) => {
 
 const createRatios = () => {
   const column = indexOfNegative(simplexTable[simplexTable.length - 1])
-  console.log(column)
-  
   if(column == -1) return 1
   
   simplexTable.forEach((el,index) => {
-    // console.log(el,index)
     if(index < simplexTable.length-1){
-      // console.log(el)
       el[tableLength-1] = el[tableLength-2] / el[column]
     }
   })
-  
-  // console.log(simplexTable)
   
 }
 
 const selectSmallest = () => {
   return simplexTable.reduce((acc, current, index) => {
-    // console.log(current[tableLength-1])
     if(acc.value >= current[tableLength-1] && current[tableLength-1] >= 0){
       acc.value = current[tableLength-1]
       acc.index = index
@@ -60,23 +55,50 @@ const updatePivotIndex = (pivot) => {
 
 const switchBasics = (updatedPivotIndex) => {
   simplexTable[updatedPivotIndex.row][0] = updatedPivotIndex.column
-  // console.log(simplexTable)
+}
+
+const createTableFirstRow = () => {
+  const numbers = [...Array(tableLength - 2).keys()];
+  const rowDiv = `
+  <div class="row header"> 
+    ${numbers.map(n => {
+      return `
+      <span>
+        <math xmlns="http://www.w3.org/1998/Math/MathML">
+        <msub>
+          <mi>x</mi>
+          <mi>${n}</mi>
+        </msub>
+      </math>
+     </span>
+      `
+    }).join('')}
+  </div>
+  `
+
+  return rowDiv
 }
 
 
 const renderInHTMLTable = (simplexTable) => {
-  const html = simplexTable.map(el => {
+  const html = simplexTable.map((el,i) => {
     return `
-      <div>
-      ${el.map(n => {
-        return `<span> ${Math.round(n * 100) / 100} </span>`
-      })}
+      <div class="row">
+      ${el.map((n,j) => {
+        return `<span class=${ i == pivot.row && j == pivot.column ? 'pivot' : ''}> ${Math.round(n * 100) / 100} </span>`
+      }).join('')}
       </div>
     `
   }).join('');
+
+  const div = document.createElement('div')
+  div.innerHTML = createTableFirstRow() + html
   
-  document.querySelector('#table').innerHTML = html;
+  table.appendChild(div);
+  // .innerHTML = createTableFirstRow() + html;
 }
+
+renderInHTMLTable(simplexTable)
 
 const makePivotOne = () => {
   simplexTable[pivot.row].forEach((el,index) => {
@@ -101,14 +123,10 @@ const performGauss = () => {
 }
 
 const getResult = () =>{
-  
   const resArr = new Array(tableLength - 3).fill(0);
   console.log(resArr)
-  // resArr.forEach((el,eli) => {
     simplexTable.forEach((r,ri) => {
-      // if(eli == r[0]-1){
-        resArr[r[0]-1] = simplexTable[ri][tableLength-2]
-      // }
+      resArr[r[0]-1] = simplexTable[ri][tableLength-2]
     })
   
   document.querySelector('#result').innerHTML = `
@@ -133,18 +151,62 @@ const getResult = () =>{
 
 const startAlgorithm = () => {  
   let counter = 0
+  // setTimeout(function() {
+    while(indexOfNegative(simplexTable[simplexTable.length - 1]) != -1 && counter < 50){
+      
+        createRatios()
+        switchBasics(updatePivotIndex(pivot))
+        makePivotOne()
+        performGauss()
+        renderInHTMLTable(simplexTable)
+      
+      counter++
+    }
+    getResult()
+  // }, 2000);
   
-  while(indexOfNegative(simplexTable[simplexTable.length - 1]) != -1 && counter < 50){
-    createRatios()
-    switchBasics(updatePivotIndex(pivot))
-    makePivotOne()
-    performGauss()
-    counter++
-  }
   
-  renderInHTMLTable(simplexTable)
-  getResult()
+  // renderInHTMLTable(simplexTable)
+ 
 }
+
+if(indexOfNegative(simplexTable[simplexTable.length - 1]) != -1){
+  nextStep.innerHTML = 'create ratios'
+  nextStep.dataset.step = 'create-ratios'
+
+  // let step = nextStep.dataset.step
+
+  nextStep.addEventListener('click',() => {
+    const step = nextStep.dataset.step
+
+    switch(step){
+      case 'create-ratios':
+        createRatios()
+        renderInHTMLTable(simplexTable)
+        nextStep.dataset.step = 'switch-basics'
+        nextStep.innerHTML = 'switch basics'
+        break;
+      case 'switch-basics':
+        switchBasics(updatePivotIndex(pivot))
+        makePivotOne()
+        renderInHTMLTable(simplexTable)
+        nextStep.dataset.step = 'perform-gauss'
+        nextStep.innerHTML = 'perform gauss'
+        break;
+      case 'perform-gauss':
+        performGauss()
+        renderInHTMLTable(simplexTable)
+        nextStep.dataset.step = 'create-ratios'
+        nextStep.innerHTML = 'create ratios'
+        break;
+    }
+  })
+
+}else{
+  nextStep.classList.add('hide')
+}
+
+// startAlgorithm()
 
 const startButton = document.querySelector('button')
 
