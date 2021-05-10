@@ -12,6 +12,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 300ms linear;
 }
 #table .row span:first-child {
   border-right: 1px solid black;
@@ -20,7 +21,24 @@ body {
   font-size: 10px;
 }
 #table .row span.pivot {
-  background: #9FB15A;
+  font-weight: 700;
+  animation: highlightPivot 1s linear forwards;
+  position: relative;
+}
+#table .row span.pivot-column, #table .row span.pivot-row {
+  background: #c06bcf;
+}
+#table .row span.pivot-column-whole, #table .row span.pivot-row-whole {
+  background: #e1b8e8;
+}
+#table .row span.new-basic {
+  background: #b3c17d;
+}
+#table .row span.updated-row {
+  background: #bdca8e;
+}
+#table .row span.result {
+  background: #98b0dd;
 }
 #table .row.header {
   border-bottom: 1px dashed black;
@@ -37,6 +55,18 @@ body {
 }
 #table .row:last-child span {
   font-size: 16px;
+}
+#table .row:last-child span:first-child {
+  opacity: 0;
+}
+
+@keyframes highlightPivot {
+  0% {
+    background: #e1b8e8;
+  }
+  100% {
+    background: #b044c3;
+  }
 }
 
 /*# sourceMappingURL=style.css.map */

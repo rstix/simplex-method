@@ -1,6 +1,6 @@
 
-// let simplexTable = [[3,1,1,1,0,0,10,0],[4,3,1,0,1,0,15,0],[5,-1,1,0,0,1,13,0],[0,-3,1,0,0,0,0]]
-let simplexTable = [[5,8,-2,1,-1,1,0,0,50,0],[6,3,5,0,2,0,1,0,150,0],[7,1,-1,2,-4,0,0,1,130,0],[0,2,4,-4,7,0,0,0,0]]
+let simplexTable = [[3,1,1,1,0,0,10,0],[4,3,1,0,1,0,15,0],[5,-1,1,0,0,1,13,0],[0,-3,1,0,0,0,0]]
+// let simplexTable = [[5,8,-2,1,-1,1,0,0,50,0],[6,3,5,0,2,0,1,0,150,0],[7,1,-1,2,-4,0,0,1,130,0],[0,2,4,-4,7,0,0,0,0]]
 
 
 
@@ -23,8 +23,7 @@ const indexOfNegative = (arr) => {
 }
 
 
-const createRatios = () => {
-  const column = indexOfNegative(simplexTable[simplexTable.length - 1])
+const createRatios = (column) => {
   if(column == -1) return 1
   
   simplexTable.forEach((el,index) => {
@@ -79,13 +78,25 @@ const createTableFirstRow = () => {
   return rowDiv
 }
 
+// ${ i == pivot.row && j == pivot.column ? 'pivott' : ''}
 
-const renderInHTMLTable = (simplexTable) => {
+const renderInHTMLTable = (simplexTable,step) => {
   const html = simplexTable.map((el,i) => {
     return `
       <div class="row">
       ${el.map((n,j) => {
-        return `<span class=${ i == pivot.row && j == pivot.column ? 'pivot' : ''}> ${Math.round(n * 100) / 100} </span>`
+        if(j==n)console.log(j,n)
+        return `<span class=
+          ${ i == simplexTable.length-1 && j == pivot.column && step == 'find-column' ? 'pivot-column' : ''}
+          ${ i == pivot.row && j == pivot.column && step == 'find-pivot' ? 'pivot' : ''}
+          ${ i == pivot.row && step == 'find-pivot' ? 'pivot-row-whole' : ''}
+          ${ j == pivot.column && (step == 'create-ratios' || step =='select-smallest' || step =='find-pivot') ? 'pivot-column-whole' : ''}
+          ${ i == pivot.row && j == tableLength-1 && step == 'select-smallest' ? 'pivot-row' : ''}
+          ${ i == pivot.row && j == 0 && step == 'switch-basics' ? 'new-basic' : ''}
+          ${ i == pivot.row && j > 0 && j < tableLength-1 && step == 'update-pivot-row' ? 'updated-row' : ''}
+          ${ (j == 0 || j == tableLength-2) && i < simplexTable.length-1 && n < tableLength - simplexTable.length - 2 && step == 'results' ? 'result' : ''}
+          > 
+          ${Math.round(n * 100) / 100} </span>`
       }).join('')}
       </div>
     `
@@ -101,6 +112,7 @@ const renderInHTMLTable = (simplexTable) => {
 renderInHTMLTable(simplexTable)
 
 const makePivotOne = () => {
+  if(pivot.value ==  1) return
   simplexTable[pivot.row].forEach((el,index) => {
     if(index >0 && index < tableLength-1){
       simplexTable[pivot.row][index] = el / pivot.value
@@ -171,35 +183,71 @@ const startAlgorithm = () => {
 }
 
 if(indexOfNegative(simplexTable[simplexTable.length - 1]) != -1){
-  nextStep.innerHTML = 'create ratios'
-  nextStep.dataset.step = 'create-ratios'
+  nextStep.innerHTML = 'find column'
+  nextStep.dataset.step = 'find-column'
 
   // let step = nextStep.dataset.step
 
   nextStep.addEventListener('click',() => {
     const step = nextStep.dataset.step
-
+    
+    // const column = indexOfNegative(simplexTable[simplexTable.length - 1])
     switch(step){
+      case 'find-column':
+        const column = indexOfNegative(simplexTable[simplexTable.length - 1])
+        if(column == -1){
+          renderInHTMLTable(simplexTable,'results')
+          getResult()
+          nextStep.disabled = true
+          break;
+        }
+        pivot.column =  column
+        console.log(pivot)
+        renderInHTMLTable(simplexTable,'find-column')
+        nextStep.dataset.step = 'create-ratios'
+        nextStep.innerHTML = 'create ratios'
+        break;
       case 'create-ratios':
-        createRatios()
-        renderInHTMLTable(simplexTable)
+        console.log(pivot)
+        createRatios(indexOfNegative(simplexTable[simplexTable.length - 1]))
+        renderInHTMLTable(simplexTable,'create-ratios')
+        nextStep.dataset.step = 'select-smallest'
+        nextStep.innerHTML = 'select smallest'
+        break;
+      case 'select-smallest':
+        console.log(selectSmallest())
+        pivot.row = selectSmallest().index
+        renderInHTMLTable(simplexTable,'select-smallest')
+        nextStep.dataset.step = 'find-pivot'
+        nextStep.innerHTML = 'find pivot'
+        break;
+      case 'find-pivot':
+        updatePivotIndex(pivot)
+        renderInHTMLTable(simplexTable,'find-pivot')
         nextStep.dataset.step = 'switch-basics'
         nextStep.innerHTML = 'switch basics'
         break;
       case 'switch-basics':
         switchBasics(updatePivotIndex(pivot))
+        renderInHTMLTable(simplexTable,'switch-basics')
+        nextStep.dataset.step = 'update-pivot-row'
+        nextStep.innerHTML = 'update pivot row'
+        break;
+      case 'update-pivot-row':
         makePivotOne()
-        renderInHTMLTable(simplexTable)
+        renderInHTMLTable(simplexTable,'update-pivot-row')
         nextStep.dataset.step = 'perform-gauss'
         nextStep.innerHTML = 'perform gauss'
         break;
       case 'perform-gauss':
         performGauss()
         renderInHTMLTable(simplexTable)
-        nextStep.dataset.step = 'create-ratios'
-        nextStep.innerHTML = 'create ratios'
+        nextStep.dataset.step = 'find-column'
+        nextStep.innerHTML = 'find column'
         break;
     }
+
+    window.scrollTo(0,document.body.scrollHeight);
   })
 
 }else{
