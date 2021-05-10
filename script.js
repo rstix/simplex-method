@@ -1,6 +1,29 @@
 
 // let simplexTable = [[3,1,1,1,0,0,10,0],[4,3,1,0,1,0,15,0],[5,-1,1,0,0,1,13,0],[0,-3,1,0,0,0,0]]
 let simplexTable = [[5,8,-2,1,-1,1,0,0,50,0],[6,3,5,0,2,0,1,0,150,0],[7,1,-1,2,-4,0,0,1,130,0],[0,2,4,-4,7,0,0,0,0]]
+// let simplexTable = [[4,3,2,0,1,0,0,60,0],[5,-1,1,4,0,1,0,10,0],[6,2,-2,5,0,0,1,50,0],[0,-2,-3,-3,0,0,0,0]]
+
+let m = 'min';
+
+
+const buttons = document.querySelectorAll('.min-max')
+buttons.forEach(btn => btn.addEventListener('click',toggleBtns))
+
+function toggleBtns(){
+  buttons.forEach(btn => btn.classList.remove('active'))
+  this.classList.add('active')
+  m = this.dataset.m
+  if(m == 'max'){
+    simplexTable[simplexTable.length-1].forEach((e,i) =>  simplexTable[simplexTable.length-1][i] = -e)
+    renderInHTMLTable(simplexTable,'replace')
+  }else{
+    simplexTable[simplexTable.length-1].forEach((e,i) =>  simplexTable[simplexTable.length-1][i] = -e)
+    renderInHTMLTable(simplexTable,'replace')
+  }
+}
+
+// toggleBtns()
+
 
 
 
@@ -102,8 +125,15 @@ const renderInHTMLTable = (simplexTable,step) => {
 
   const div = document.createElement('div')
   div.innerHTML = createTableFirstRow() + html
+
+  if(step == 'replace'){
+    table.innerHTML = ''
+  }
   
   table.appendChild(div);
+
+  
+
 }
 
 renderInHTMLTable(simplexTable)
@@ -138,7 +168,7 @@ const getResult = () =>{
     })
   
   document.querySelector('#result').innerHTML = `
-    Minimun ${-simplexTable[simplexTable.length-1][tableLength-2]} occurs at  (${resArr.slice(0,tableLength - simplexTable.length - 2)})
+    Minimun <b>${-simplexTable[simplexTable.length-1][tableLength-2]}</b> attained at  <b>(${resArr.slice(0,tableLength - simplexTable.length - 2)})</b>
   `;
 }
 
@@ -227,6 +257,8 @@ if(indexOfNegative(simplexTable[simplexTable.length - 1]) != -1){
 
 // startAlgorithm()
 
-const startButton = document.querySelector('button')
+
+
+const startButton = document.querySelector('.start-button')
 
 startButton.addEventListener('click',startAlgorithm)
